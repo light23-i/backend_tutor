@@ -6,7 +6,11 @@ import axios from 'axios';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: '*', // Replace '*' with a specific origin if needed
+    methods: 'GET,POST,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+}));
 app.use(express.json());
 
 const RETELL_API_URL = 'https://api.retellai.com/v2';
