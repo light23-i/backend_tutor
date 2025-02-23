@@ -42,7 +42,7 @@ app.post('/api/create-call', async (req, res, next) => {
   try {
     const { userName, language = 'english' } = req.body;
 
-    if (!process.env.RETELL_API_KEY || !process.env.AGENT_ID) {
+    if (!process.env.RETELL_API_KEY) {
       throw new Error('Missing required environment variables');
     }
     const agentId = getAgentId(language);
