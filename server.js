@@ -46,6 +46,8 @@ app.post('/api/create-call', async (req, res, next) => {
       throw new Error('Missing required environment variables');
     }
     const agentId = getAgentId(language);
+    console.log(language);
+    console.log(agentId);
     const response = await axios.post(
       `${RETELL_API_URL}/create-web-call`,
       {
