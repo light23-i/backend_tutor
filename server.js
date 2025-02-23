@@ -4,9 +4,24 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 
 dotenv.config();
-
+const getAgentId = (language) => {
+  switch (language.toLowerCase()) {
+    case 'english':
+    case 'en':
+      return process.env.AGENT_ID1;
+    case 'chinese':
+    case 'zh':
+      return process.env.AGENT_ID2;
+    default:
+      throw new Error('Unsupported language. Please specify "english" or "chinese"');
+  }
+};
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*', // Replace '*' with a specific origin if needed
+  methods: 'GET,POST,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization',
+}));
 app.use(express.json());
 
 const RETELL_API_URL = 'https://api.retellai.com/v2';
@@ -25,16 +40,16 @@ const errorHandler = (err, req, res, next) => {
 // Create web call endpoint
 app.post('/api/create-call', async (req, res, next) => {
   try {
-    const { userName } = req.body;
+    const { userName, language = 'english' } = req.body;
 
     if (!process.env.RETELL_API_KEY || !process.env.AGENT_ID) {
       throw new Error('Missing required environment variables');
     }
-
+    const agentId = getAgentId(language);
     const response = await axios.post(
       `${RETELL_API_URL}/create-web-call`,
       {
-        agent_id: process.env.AGENT_ID,
+        agent_id: agentId,
         metadata: {
           user_name: userName
         },
