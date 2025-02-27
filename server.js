@@ -4,18 +4,7 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 
 dotenv.config();
-const getAgentId = (language) => {
-  switch (language.toLowerCase()) {
-    case 'english':
-    case 'en':
-      return process.env.AGENT_ID1;
-    case 'chinese':
-    case 'zh':
-      return process.env.AGENT_ID2;
-    default:
-      throw new Error('Unsupported language. Please specify "english" or "chinese"');
-  }
-};
+
 const app = express();
 app.use(cors({
   origin: '*', // Replace '*' with a specific origin if needed
@@ -45,7 +34,7 @@ app.post('/api/create-call', async (req, res, next) => {
     if (!process.env.RETELL_API_KEY) {
       throw new Error('Missing required environment variables');
     }
-    const agentId = getAgentId(language);
+    const agentId = process.env.AGENT_ID1;
     console.log(language);
     console.log(agentId);
     const response = await axios.post(
