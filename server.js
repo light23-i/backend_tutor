@@ -34,7 +34,7 @@ app.post('/api/create-call', async (req, res, next) => {
     if (!process.env.RETELL_API_KEY) {
       throw new Error('Missing required environment variables');
     }
-    const agentId = process.env.AGENT_ID1;
+    const agentId = 'agent_751db13f118e9ed3e91b126060';
     console.log(language);
     console.log(agentId);
     const response = await axios.post(
@@ -55,26 +55,36 @@ app.post('/api/create-call', async (req, res, next) => {
         }
       }
     );
-    console.log(response);
+    console.log("Response received from Retell API:");
+    console.log("Status:", response.status);
+    console.log("Data:", JSON.stringify(response.data, null, 2));
 
     res.json({
       access_token: response.data.access_token,
       call_id: response.data.call_id
     });
   } catch (error) {
+    console.log("API call failed");
     if (error.response) {
       // API error response
+      console.error("API Error Response:", {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
       next({
         status: error.response.status,
         message: error.response.data.message || 'API request failed'
       });
     } else if (error.request) {
       // Network error
+      console.error("Network Error:", error.message);
       next({
         status: 503,
         message: 'Unable to reach Retell API'
       });
     } else {
+      console.error("General Error:", error.message);
       next(error);
     }
   }
@@ -96,17 +106,27 @@ app.get('/api/call/:callId', async (req, res, next) => {
 
     res.json(response.data);
   } catch (error) {
+    console.log("API call failed");
     if (error.response) {
+      // API error response
+      console.error("API Error Response:", {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
       next({
         status: error.response.status,
-        message: error.response.data.message || 'Failed to retrieve call'
+        message: error.response.data.message || 'API request failed'
       });
     } else if (error.request) {
+      // Network error
+      console.error("Network Error:", error.message);
       next({
         status: 503,
         message: 'Unable to reach Retell API'
       });
     } else {
+      console.error("General Error:", error.message);
       next(error);
     }
   }
@@ -115,6 +135,14 @@ app.get('/api/call/:callId', async (req, res, next) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Debug endpoint to check if API key is set
+app.get('/api/debug', (req, res) => {
+  res.json({ 
+    hasRetellApiKey: !!process.env.RETELL_API_KEY,
+    keyLength: process.env.RETELL_API_KEY ? process.env.RETELL_API_KEY.length : 0
+  });
 });
 
 app.use(errorHandler);
